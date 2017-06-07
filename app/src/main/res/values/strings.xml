@@ -1,6 +1,61 @@
 <resources>
+
     <string name="app_name">Tabs</string>
-    <string name="action_settings">Settings</string>
+    <string name="action_settings">Languages</string>
     <string name="section_format">Hello World from section: %1$d</string>
     <string name="title_activity_details">Details</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Strings related to Settings -->
+
+    <!-- Language settings -->
+    <string name="pref_header_language">Languages</string>
+
+
+    <string-array name="language_entries">
+        <item>Chinese(Simplified)</item>
+        <item>Chinese(Traditional)</item>
+        <item>Danish</item>
+        <item>Dutch</item>
+        <item>English</item>
+        <item>Finnish</item>
+        <item>French</item>
+        <item>German</item>
+        <item>Greek</item>
+        <item>Hungarian</item>
+        <item>Korean</item>
+        <item>Italian</item>
+        <item>Japanese</item>
+        <item>Norwegian</item>
+        <item>Polish</item>
+        <item>Portuguese</item>
+        <item>Russian</item>
+        <item>Spanish</item>
+        <item>Swedish</item>
+        <item>Turkish</item>
+    </string-array>
+
+    <string-array name="language_values">
+        <item>chs</item>
+        <item>cht</item>
+        <item>dan</item>
+        <item>dut</item>
+        <item>eng</item>
+        <item>fin</item>
+        <item>fre</item>
+        <item>ger</item>
+        <item>gre</item>
+        <item>hun</item>
+        <item>kor</item>
+        <item>ita</item>
+        <item>jpn</item>
+        <item>nor</item>
+        <item>pol</item>
+        <item>por</item>
+        <item>rus</item>
+        <item>spa</item>
+        <item>swe</item>
+        <item>tur</item>
+    </string-array>
+
 </resources>
