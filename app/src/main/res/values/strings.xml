@@ -58,4 +58,8 @@
         <item>tur</item>
     </string-array>
 
+    <!-- -->
+    <string name ="file_too_big">Image file size limit reached (1MB free API)</string>
+    <string name ="unknow_fail">Something went wrong!</string>
+
 </resources>

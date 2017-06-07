@@ -6,6 +6,8 @@ import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 
+import java.io.File;
+
 /**
  * Created by pau on 7/06/17.
  */
@@ -36,6 +38,7 @@ public class OCRapi {
         .setMultipartParameter("goop", "noop")
 .setMultipartFile("archive", "application/zip", new File("/sdcard/filename.zip"))
          */
+        /*
         Ion.with(context)
                 .load(BASE_URL)
                 .setBodyParameter("apikey", api_key)
@@ -47,6 +50,29 @@ public class OCRapi {
                 .setCallback(new FutureCallback<JsonObject>() {
                     @Override
                     public void onCompleted(Exception e, JsonObject result) {
+                        System.out.println("Call recieved -> ");
+                        System.out.println(result.toString());
+
+                        if(callback != null){
+                            callback.onCompleted(e,result);
+                        }
+                    }
+                });
+*/
+        File f = new File(img_url);
+
+        Ion.with(context)
+                .load(BASE_URL)
+                .setMultipartParameter("apikey", api_key)
+                .setMultipartParameter("isOverlayRequired", "false")
+               // .setMultipartParameter(type, "")
+                .setMultipartFile(f.getName(),f)
+                .setMultipartParameter("language",language)
+                .asJsonObject()
+                .setCallback(new FutureCallback<JsonObject>() {
+                    @Override
+                    public void onCompleted(Exception e, JsonObject result) {
+
                         System.out.println("Call recieved -> ");
                         System.out.println(result.toString());
 

@@ -20,35 +20,8 @@
         android:layout_marginStart="16dp"
         app:layout_constraintLeft_toLeftOf="parent"
         android:layout_marginLeft="16dp"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <HorizontalScrollView
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@+id/fileSource"
-        android:layout_marginEnd="8dp"
-        app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginRight="8dp"
-        android:layout_marginStart="8dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_marginLeft="8dp"
-        android:id="@+id/horizontalScroll"
-        app:layout_constraintBottom_toTopOf="@+id/guideline"
-        android:layout_marginBottom="8dp">
-
-        <ScrollView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:id="@+id/imageScroll">
-
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:srcCompat="@drawable/ic_camera"
-                android:id="@+id/imageFile" />
-        </ScrollView>
-    </HorizontalScrollView>
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="8dp" />
 
     <android.support.constraint.Guideline
         android:layout_width="wrap_content"
@@ -79,7 +52,25 @@
             android:layout_height="wrap_content"
             android:inputType="textMultiLine"
             android:ems="10"
+            android:background="@null"
             android:id="@+id/textResult" />
     </ScrollView>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        app:srcCompat="@drawable/ic_camera"
+        android:id="@+id/imageFile"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/fileSource"
+        app:layout_constraintBottom_toTopOf="@+id/guideline"
+        android:layout_marginBottom="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        app:layout_constraintHorizontal_bias="0.05" />
 
 </android.support.constraint.ConstraintLayout>

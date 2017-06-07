@@ -1,6 +1,7 @@
 package com.pruebascongit.pau.tabs;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -28,6 +29,7 @@ public class MainTab extends Fragment implements View.OnClickListener {
 
     String mCurrentPhotoPath;
     static final int REQUEST_TAKE_PHOTO = 1;
+    private static final int ACTIVITAT_SELECCIONAR_IMATGE = 1;
     static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
 
 
@@ -58,6 +60,7 @@ public class MainTab extends Fragment implements View.OnClickListener {
                 dispatchTakePictureIntent();
                 break;
             case R.id.filePicker:
+                launchImagePicker();
                 break;
             default:
                 break;
@@ -122,13 +125,47 @@ public class MainTab extends Fragment implements View.OnClickListener {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode == RESULT_OK) {
+        switch (requestCode) {
+            case ACTIVITAT_SELECCIONAR_IMATGE:
+                if (resultCode == RESULT_OK) {
+                    Uri seleccio = data.getData();
+                    String[] columna = {MediaStore.Images.Media.DATA};
 
-            Intent intent = new Intent(getContext(),DetailsActivity.class);
-            intent.putExtra("caller","capturer");
-            intent.putExtra("preview",mCurrentPhotoPath);
-            startActivity(intent);
+                    Cursor cursor = getContext().getContentResolver().query(
+                            seleccio, columna, null, null, null);
+                    cursor.moveToFirst();
 
+                    int indexColumna = cursor.getColumnIndex(columna[0]);
+                    mCurrentPhotoPath = cursor.getString(indexColumna);
+                    System.out.println("RUTA ->"+mCurrentPhotoPath);
+                    cursor.close();
+                    startOCRintent();
+                }
+                break;
+            case CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE:
+                if (resultCode == RESULT_OK) {
+                    startOCRintent();
+                }
+                break;
+            default:
+                System.out.println("Default entry! ");
+                break;
         }
+
+    }
+
+    private void startOCRintent(){
+
+        Intent intent = new Intent(getContext(),DetailsActivity.class);
+        intent.putExtra("caller","capturer");
+        intent.putExtra("preview",mCurrentPhotoPath);
+        startActivity(intent);
+    }
+
+    private void launchImagePicker(){
+        Intent i = new Intent(
+                Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+        );
+        startActivityForResult(i, ACTIVITAT_SELECCIONAR_IMATGE);
     }
 }

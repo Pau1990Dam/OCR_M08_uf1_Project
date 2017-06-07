@@ -1,5 +1,6 @@
 package com.pruebascongit.pau.tabs;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -16,6 +17,10 @@ import com.bumptech.glide.Glide;
 import com.google.gson.JsonObject;
 import com.pruebascongit.pau.tabs.Api.OCRapi;
 
+import java.io.File;
+
+import static com.bumptech.glide.request.RequestOptions.centerCropTransform;
+import static com.bumptech.glide.request.RequestOptions.fitCenterTransform;
 
 
 /**
@@ -31,6 +36,7 @@ public class DetailsActivityFragment extends Fragment {
     private EditText textResult;
     private ImageView imageFile;
     private String type;
+    private File image;
 
     public DetailsActivityFragment() {
     }
@@ -45,7 +51,9 @@ public class DetailsActivityFragment extends Fragment {
 
         fileSource = (TextView) view.findViewById(R.id.fileSource);
         textResult = (EditText) view.findViewById(R.id.textResult);
+        textResult.setEnabled(false);
         imageFile = (ImageView) view.findViewById(R.id.imageFile);
+        imageFile.setImageResource(R.drawable.ic_camera);
 
         serviceStarter(dataCaught);
 
@@ -58,24 +66,34 @@ public class DetailsActivityFragment extends Fragment {
         if (dataCaught != null) {
 
             fileSrc = dataCaught.getStringExtra("preview");
-            System.out.println("File source -> "+fileSrc);
+
             loadImage();
 
             switch (dataCaught.getStringExtra("caller")) {
-                case "capturer":
-                    type = "file";
-                    break;
-                case "list":
-                    break;
+                    case "capturer":
+                        type = "base64Image";
+                        break;
+                    case "list":
+                        break;
             }
-            fileSource.setText(fileSrc);
+            long imageSize =( ((new File(fileSrc)).length())/1024);
+            System.out.println("IMAGESIZE -> "+imageSize);
+            if(imageSize <= 1024 ) {
+                fileSource.setText(fileSrc);
+                startDownloadImageParsingResult();
+            }else {
+                textResult.setText(R.string.file_too_big);
+            }
+
         }
     }
 
     private void loadImage() {
+        System.out.println("File source -> "+fileSrc);
         Glide
                 .with(getContext())
                 .load(fileSrc)
+                .apply(fitCenterTransform())
                 .into(imageFile);
     }
 
@@ -84,7 +102,7 @@ public class DetailsActivityFragment extends Fragment {
         String language;
         SharedPreferences preferencias = PreferenceManager.getDefaultSharedPreferences(getContext());
 
-        language = preferencias.getString("lang", "-1");
+        language = preferencias.getString("lang", "esp");
 
         System.out.println("LANGUAGE -> "+language);
 
@@ -92,14 +110,18 @@ public class DetailsActivityFragment extends Fragment {
 
             @Override
             public void onCompleted(Exception e, JsonObject response) {
+
                 if (response != null) {
-                    if (!response.equals("")) {
-                        System.out.println("RESPONSE -> "+response.toString());
+                    if (e != null) {
+                        textResult.setText(e.toString()+"\n"+response.toString());
+
                         //SUCCESS !! Open new intent!
                     } else {
+                        textResult.setText(response.toString());
                         //FAIL!! Show TOAST!
                     }
-                }
+                }else
+                    textResult.setText(R.string.unknow_fail);
 
             }
         });
