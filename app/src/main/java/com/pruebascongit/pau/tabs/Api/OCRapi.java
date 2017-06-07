@@ -21,7 +21,7 @@ public class OCRapi {
         void onCompleted(Exception e, JsonObject result);
     }
 
-    public static void Call(Context context, String img_url, String type, String language,
+    public static void Call(Context context, String img_url, String language,
                             final call callback){
 
         System.out.println("Entered");

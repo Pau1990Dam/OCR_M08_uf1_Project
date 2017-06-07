@@ -35,7 +35,6 @@ public class DetailsActivityFragment extends Fragment {
     private TextView fileSource;
     private EditText textResult;
     private ImageView imageFile;
-    private String type;
     private File image;
 
     public DetailsActivityFragment() {
@@ -67,24 +66,32 @@ public class DetailsActivityFragment extends Fragment {
 
             fileSrc = dataCaught.getStringExtra("preview");
 
-            loadImage();
-
-            switch (dataCaught.getStringExtra("caller")) {
-                    case "capturer":
-                        type = "base64Image";
+            switch (dataCaught.getStringExtra("callFor")) {
+                    case "capture":
+                        loadImage();
                         break;
-                    case "list":
+                case "pdf":
+                    imageFile.setImageResource(R.drawable.ic_pdf);
+                    break;
+
+                    case "displayFromBD":
                         break;
             }
-            long imageSize =( ((new File(fileSrc)).length())/1024);
-            System.out.println("IMAGESIZE -> "+imageSize);
-            if(imageSize <= 1024 ) {
-                fileSource.setText(fileSrc);
-                startDownloadImageParsingResult();
-            }else {
-                textResult.setText(R.string.file_too_big);
-            }
+            checkFileSize();
 
+
+        }
+    }
+
+    private void checkFileSize(){
+
+        long imageSize =( ((new File(fileSrc)).length())/1024);
+        System.out.println("IMAGESIZE -> "+imageSize);
+        if(imageSize <= 1024 ) {
+            fileSource.setText(fileSrc);
+            startDownloadImageParsingResult();
+        }else {
+            textResult.setText(R.string.file_too_big);
         }
     }
 
@@ -106,7 +113,7 @@ public class DetailsActivityFragment extends Fragment {
 
         System.out.println("LANGUAGE -> "+language);
 
-        OCRapi.Call(getContext(), fileSrc, type, language, new OCRapi.call() {
+        OCRapi.Call(getContext(), fileSrc, language, new OCRapi.call() {
 
             @Override
             public void onCompleted(Exception e, JsonObject response) {

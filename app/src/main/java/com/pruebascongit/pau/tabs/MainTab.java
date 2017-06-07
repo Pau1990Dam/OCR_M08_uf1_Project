@@ -1,22 +1,24 @@
 package com.pruebascongit.pau.tabs;
 
+import android.content.ContentUris;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -28,9 +30,9 @@ import static android.app.Activity.RESULT_OK;
 public class MainTab extends Fragment implements View.OnClickListener {
 
     String mCurrentPhotoPath;
-    static final int REQUEST_TAKE_PHOTO = 1;
-    private static final int ACTIVITAT_SELECCIONAR_IMATGE = 1;
-    static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
+
+    static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 1;
+    private static final int ACTIVITAT_SELECCIONAR_EXPLORADOR = 2;
 
 
     private View view;
@@ -60,23 +62,13 @@ public class MainTab extends Fragment implements View.OnClickListener {
                 dispatchTakePictureIntent();
                 break;
             case R.id.filePicker:
-                launchImagePicker();
+                requestFile();
                 break;
             default:
                 break;
         }
 
     }
-
-    private static String imageToBase64(Bitmap bitmap) {
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 20, baos);
-        byte[] imageBytes = baos.toByteArray();
-
-        return Base64.encodeToString(imageBytes, Base64.DEFAULT);
-    }
-
 
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -121,32 +113,30 @@ public class MainTab extends Fragment implements View.OnClickListener {
         return image;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         switch (requestCode) {
-            case ACTIVITAT_SELECCIONAR_IMATGE:
-                if (resultCode == RESULT_OK) {
-                    Uri seleccio = data.getData();
-                    String[] columna = {MediaStore.Images.Media.DATA};
 
-                    Cursor cursor = getContext().getContentResolver().query(
-                            seleccio, columna, null, null, null);
-                    cursor.moveToFirst();
-
-                    int indexColumna = cursor.getColumnIndex(columna[0]);
-                    mCurrentPhotoPath = cursor.getString(indexColumna);
-                    System.out.println("RUTA ->"+mCurrentPhotoPath);
-                    cursor.close();
-                    startOCRintent();
-                }
-                break;
             case CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE:
                 if (resultCode == RESULT_OK) {
-                    startOCRintent();
+
+                    startOCRintent("capture");
                 }
                 break;
+            case ACTIVITAT_SELECCIONAR_EXPLORADOR:
+                if (resultCode == RESULT_OK) {
+
+                    Uri seleccio = data.getData();
+
+                    mCurrentPhotoPath = getPath(getContext(),seleccio);
+                    if(mCurrentPhotoPath.substring(mCurrentPhotoPath.lastIndexOf(".")).equals("pdf"))
+                        startOCRintent("pdf");
+                    else
+                        startOCRintent("capture");
+                }
             default:
                 System.out.println("Default entry! ");
                 break;
@@ -154,18 +144,172 @@ public class MainTab extends Fragment implements View.OnClickListener {
 
     }
 
-    private void startOCRintent(){
+    private void startOCRintent(String type){
 
         Intent intent = new Intent(getContext(),DetailsActivity.class);
-        intent.putExtra("caller","capturer");
+        intent.putExtra("callFor",type);
         intent.putExtra("preview",mCurrentPhotoPath);
         startActivity(intent);
     }
 
-    private void launchImagePicker(){
-        Intent i = new Intent(
-                Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-        );
-        startActivityForResult(i, ACTIVITAT_SELECCIONAR_IMATGE);
+
+    private void requestFile(){
+        Intent intent = getFileChooserIntent();
+        startActivityForResult(intent, ACTIVITAT_SELECCIONAR_EXPLORADOR);
+    }
+
+
+    private Intent getFileChooserIntent() {
+        String[] mimeTypes = {"image/*", "application/pdf"};
+
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            intent.setType(mimeTypes.length == 1 ? mimeTypes[0] : "*/*");
+            if (mimeTypes.length > 0) {
+                intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+            }
+        } else {
+            String mimeTypesStr = "";
+
+            for (String mimeType : mimeTypes) {
+                mimeTypesStr += mimeType + "|";
+            }
+
+            intent.setType(mimeTypesStr.substring(0, mimeTypesStr.length() - 1));
+        }
+
+        return intent;
+    }
+
+    /**
+     * Get a file path from a Uri. This will get the the path for Storage Access
+     * Framework Documents, as well as the _data field for the MediaStore and
+     * other file-based ContentProviders.
+     *
+     * @param context The context.
+     * @param uri The Uri to query.
+     * @author paulburke
+     */
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    public static String getPath(final Context context, final Uri uri) {
+
+        final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+
+        // DocumentProvider
+        if (isKitKat && DocumentsContract.isDocumentUri(context, uri)) {
+            // ExternalStorageProvider
+            if (isExternalStorageDocument(uri)) {
+                final String docId = DocumentsContract.getDocumentId(uri);
+                final String[] split = docId.split(":");
+                final String type = split[0];
+
+                if ("primary".equalsIgnoreCase(type)) {
+                    return Environment.getExternalStorageDirectory() + "/" + split[1];
+                }
+
+                // TODO handle non-primary volumes
+            }
+            // DownloadsProvider
+            else if (isDownloadsDocument(uri)) {
+
+                final String id = DocumentsContract.getDocumentId(uri);
+                final Uri contentUri = ContentUris.withAppendedId(
+                        Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+
+                return getDataColumn(context, contentUri, null, null);
+            }
+            // MediaProvider
+            else if (isMediaDocument(uri)) {
+                final String docId = DocumentsContract.getDocumentId(uri);
+                final String[] split = docId.split(":");
+                final String type = split[0];
+
+                Uri contentUri = null;
+                if ("image".equals(type)) {
+                    contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+                } else if ("video".equals(type)) {
+                    contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+                } else if ("audio".equals(type)) {
+                    contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+                }
+
+                final String selection = "_id=?";
+                final String[] selectionArgs = new String[] {
+                        split[1]
+                };
+
+                return getDataColumn(context, contentUri, selection, selectionArgs);
+            }
+        }
+        // MediaStore (and general)
+        else if ("content".equalsIgnoreCase(uri.getScheme())) {
+            return getDataColumn(context, uri, null, null);
+        }
+        // File
+        else if ("file".equalsIgnoreCase(uri.getScheme())) {
+            return uri.getPath();
+        }
+
+        return null;
+    }
+
+    /**
+     * Get the value of the data column for this Uri. This is useful for
+     * MediaStore Uris, and other file-based ContentProviders.
+     *
+     * @param context The context.
+     * @param uri The Uri to query.
+     * @param selection (Optional) Filter used in the query.
+     * @param selectionArgs (Optional) Selection arguments used in the query.
+     * @return The value of the _data column, which is typically a file path.
+     */
+    public static String getDataColumn(Context context, Uri uri, String selection,
+                                       String[] selectionArgs) {
+
+        Cursor cursor = null;
+        final String column = "_data";
+        final String[] projection = {
+                column
+        };
+
+        try {
+            cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs,
+                    null);
+            if (cursor != null && cursor.moveToFirst()) {
+                final int column_index = cursor.getColumnIndexOrThrow(column);
+                return cursor.getString(column_index);
+            }
+        } finally {
+            if (cursor != null)
+                cursor.close();
+        }
+        return null;
+    }
+
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is ExternalStorageProvider.
+     */
+    public static boolean isExternalStorageDocument(Uri uri) {
+        return "com.android.externalstorage.documents".equals(uri.getAuthority());
+    }
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is DownloadsProvider.
+     */
+    public static boolean isDownloadsDocument(Uri uri) {
+        return "com.android.providers.downloads.documents".equals(uri.getAuthority());
+    }
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is MediaProvider.
+     */
+    public static boolean isMediaDocument(Uri uri) {
+        return "com.android.providers.media.documents".equals(uri.getAuthority());
     }
 }
