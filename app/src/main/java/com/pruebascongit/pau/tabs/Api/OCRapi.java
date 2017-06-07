@@ -1,17 +1,10 @@
 package com.pruebascongit.pau.tabs.Api;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.util.Base64;
 
 import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
-
-import org.json.JSONObject;
-
-import java.io.ByteArrayOutputStream;
 
 /**
  * Created by pau on 7/06/17.
@@ -47,7 +40,7 @@ public class OCRapi {
                 .load(BASE_URL)
                 .setBodyParameter("apikey", api_key)
                 .setBodyParameter("isOverlayRequired", "false")
-                .setBodyParameter("url", img_url)
+                .setBodyParameter(type, img_url)
                 .setBodyParameter("language", "eng")
                 //.setJsonObjectBody(json)
                 .asJsonObject()
