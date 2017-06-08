@@ -24,84 +24,52 @@ public class OCRapi {
     public static void Call(Context context, String img_url, String language,
                             final call callback){
 
-        System.out.println("Entered");
+        String knowIfisUrlorNot = img_url.substring(0,img_url.indexOf(":"));
 
-        JsonObject json = new JsonObject();
-        json.addProperty("apikey", api_key);
-        json.addProperty("isOverlayRequired", false);
-        json.addProperty("url", "http://dl.a9t9.com/blog/ocr-online/screenshot.jpg");
-        json.addProperty("language", "eng");
+        if(knowIfisUrlorNot.equals("http") || knowIfisUrlorNot.equals("https") ){
+            Ion.with(context)
+                    .load(BASE_URL)
+                    .setBodyParameter("apikey", api_key)
+                    .setBodyParameter("isOverlayRequired", "false")
+                    .setBodyParameter("url", img_url)
+                    .setBodyParameter("language", language)
+                    .asJsonObject()
+                    .setCallback(new FutureCallback<JsonObject>() {
+                        @Override
+                        public void onCompleted(Exception e, JsonObject result) {
 
-        //"http://dl.a9t9.com/blog/ocr-online/screenshot.jpg"
+                            System.out.println("Call recieved -> ");
+                            System.out.println(result.toString());
 
-        /*
-        .setMultipartParameter("goop", "noop")
-.setMultipartFile("archive", "application/zip", new File("/sdcard/filename.zip"))
-         */
-        /*
-        Ion.with(context)
-                .load(BASE_URL)
-                .setBodyParameter("apikey", api_key)
-                .setBodyParameter("isOverlayRequired", "false")
-                .setBodyParameter(type, img_url)
-                .setBodyParameter("language", "eng")
-                //.setJsonObjectBody(json)
-                .asJsonObject()
-                .setCallback(new FutureCallback<JsonObject>() {
-                    @Override
-                    public void onCompleted(Exception e, JsonObject result) {
-                        System.out.println("Call recieved -> ");
-                        System.out.println(result.toString());
-
-                        if(callback != null){
-                            callback.onCompleted(e,result);
+                            if(callback != null){
+                                callback.onCompleted(e,result);
+                            }
                         }
-                    }
-                });
-*/
-        File f = new File(img_url);
+                    });
+        }else {
+            File f = new File(img_url);
 
-        Ion.with(context)
-                .load(BASE_URL)
-                .setMultipartParameter("apikey", api_key)
-                .setMultipartParameter("isOverlayRequired", "false")
-               // .setMultipartParameter(type, "")
-                .setMultipartFile(f.getName(),f)
-                .setMultipartParameter("language",language)
-                .asJsonObject()
-                .setCallback(new FutureCallback<JsonObject>() {
-                    @Override
-                    public void onCompleted(Exception e, JsonObject result) {
+            Ion.with(context)
+                    .load(BASE_URL)
+                    .setMultipartParameter("apikey", api_key)
+                    .setMultipartParameter("isOverlayRequired", "false")
+                    .setMultipartFile(f.getName(),f)
+                    .setMultipartParameter("language",language)
+                    .asJsonObject()
+                    .setCallback(new FutureCallback<JsonObject>() {
+                        @Override
+                        public void onCompleted(Exception e, JsonObject result) {
 
-                        System.out.println("Call recieved -> ");
-                        System.out.println(result.toString());
+                            System.out.println("Call recieved -> ");
+                            System.out.println(result.toString());
 
-                        if(callback != null){
-                            callback.onCompleted(e,result);
+                            if(callback != null){
+                                callback.onCompleted(e,result);
+                            }
                         }
-                    }
-                });
+                    });
+        }
+
     }
 
-
-
-    /*
-
-     */
 }
-/*
-     Ion.with(context)
-                .load(BASE_URL)
-                .setJsonObjectBody(json)
-                .asJsonObject()
-                .setCallback(new FutureCallback<JsonObject>() {
-                    @Override
-                    public void onCompleted(Exception e, JsonObject result) {
-                        System.out.println("Call recieved -> ");
-                        System.out.println(result.toString());
-                    }
-                });
-
-
-
- */

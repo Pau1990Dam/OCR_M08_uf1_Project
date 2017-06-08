@@ -27,7 +27,29 @@
         <activity
             android:name=".DetailsActivity"
             android:label="@string/title_activity_details"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar">
+
+            <!-- Retrieve url that afterwards will be filter to know if match with jpg, png, pdf ... -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:scheme="file" />
+                <data android:mimeType="image/*"/>
+                <data android:mimeType="application/pdf"/>
+                <data android:host="*" />
+            </intent-filter>
+
+            <!-- Retrieve pdf from local file system -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="text/plain"/>
+            </intent-filter>
+
+        </activity>
+
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"></activity>

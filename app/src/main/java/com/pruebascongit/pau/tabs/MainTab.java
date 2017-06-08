@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -19,8 +20,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -39,10 +43,13 @@ public class MainTab extends Fragment implements View.OnClickListener {
     private ImageButton filePicker;
 
 
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.main_tab, container, false);
+
 
         FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.photoFab);
         filePicker = (ImageButton) view.findViewById(R.id.filePicker);
@@ -312,4 +319,58 @@ public class MainTab extends Fragment implements View.OnClickListener {
     public static boolean isMediaDocument(Uri uri) {
         return "com.android.providers.media.documents".equals(uri.getAuthority());
     }
+
+    public byte[] readBytes(InputStream inputStream) throws IOException {
+        // this dynamically extends to take the bytes you read
+        ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
+
+        // this is storage overwritten on each iteration with bytes
+        int bufferSize = 1024;
+        byte[] buffer = new byte[bufferSize];
+
+        // we need to know how may bytes were read to write them to the byteBuffer
+        int len = 0;
+        while ((len = inputStream.read(buffer)) != -1) {
+            byteBuffer.write(buffer, 0, len);
+        }
+
+        // and then we can return your byte array.
+        return byteBuffer.toByteArray();
+    }
 }
+/*
+ Cursor returnCursor =
+                                getContext().getContentResolver().query(audoUri, null, null, null, null);
+                        try {
+                            InputStream input = getContext().getContentResolver().openInputStream(audoUri);
+                            File target = new File("anonimous_temp.pdf");
+                            OutputStream outputStream = new FileOutputStream(target);
+                            int read = 0;
+                            byte[] bytes = new byte[1024];
+                            while ((read = input.read(bytes)) != -1) {
+                                outputStream.write(bytes, 0, read);
+                            }
+                            System.out.println("File size -> "+target.length());;
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+
+                             try {
+                    InputStream input = getContext().getContentResolver().openInputStream(intentFilter.getData());
+                    RequestBody.create(
+                            MediaType.parse(getContext().getContentResolver().getType(intentFilter.getData())),
+                            input
+                    );
+        byte [] file = readBytes(input);
+
+        } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                } catch (IOException e) {
+                e.printStackTrace();
+                }
+
+
+ */

@@ -1,8 +1,8 @@
 package com.pruebascongit.pau.tabs;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -19,7 +19,6 @@ import com.pruebascongit.pau.tabs.Api.OCRapi;
 
 import java.io.File;
 
-import static com.bumptech.glide.request.RequestOptions.centerCropTransform;
 import static com.bumptech.glide.request.RequestOptions.fitCenterTransform;
 
 
@@ -48,39 +47,116 @@ public class DetailsActivityFragment extends Fragment {
 
         Intent dataCaught = getActivity().getIntent();
 
+
+
         fileSource = (TextView) view.findViewById(R.id.fileSource);
         textResult = (EditText) view.findViewById(R.id.textResult);
         textResult.setEnabled(false);
         imageFile = (ImageView) view.findViewById(R.id.imageFile);
         imageFile.setImageResource(R.drawable.ic_camera);
 
-        serviceStarter(dataCaught);
+        if(dataCaught!= null) {
+
+            if (dataCaught.getAction() != null) {
+                externalIntentFilter(dataCaught);
+            } else {
+                explicitIntent(dataCaught);
+            }
+        }
+
 
 
         return view;
     }
 
-    private void serviceStarter(Intent dataCaught) {
+    private void externalIntentFilter(Intent intentFilter){
 
-        if (dataCaught != null) {
+        String action = intentFilter.getAction();
+        String type = intentFilter.getType();
 
-            fileSrc = dataCaught.getStringExtra("preview");
+        // File from url
+        if (Intent.ACTION_SEND.equals(action) && type != null) {
 
-            switch (dataCaught.getStringExtra("callFor")) {
-                    case "capture":
-                        loadImage();
+            String sharedText = intentFilter.getStringExtra(Intent.EXTRA_TEXT);
+
+            if (sharedText != null) {
+
+                switch (sharedText.substring(sharedText.lastIndexOf("."))){
+
+                    case ".png":
+                    case ".jpg":
+                    case ".jpeg":
+                    case ".bmp":
+                    case ".gif":
+                        fileSrc = sharedText;
+                        serviceStarter("capture");
                         break;
-                case "pdf":
-                    imageFile.setImageResource(R.drawable.ic_pdf);
+
+                    case ".pdf":
+                        fileSrc = sharedText;
+                        serviceStarter("pdf");
+                        break;//jpeg bmp gif
+                    default:
+                        System.out.println("Last index -> "+sharedText.lastIndexOf("."));
+                }
+
+            }
+
+        } else if (Intent.ACTION_VIEW.equals(action) && type != null) {
+
+            Uri fileUri = intentFilter.getData();
+
+            if (fileUri != null) {
+
+                fileSrc = intentFilter.getData().getPath();
+                serviceStarter("pdf");
+            }
+        }
+
+    }
+
+    private void  explicitIntent (Intent dataCaught){
+
+        fileSrc = dataCaught.getStringExtra("preview");
+        String mode = dataCaught.getStringExtra("callFor");
+
+        serviceStarter(mode);
+
+    }
+
+    private void serviceStarter(String mode) {
+
+        switch (mode) {
+
+                case "capture":
+                    loadImage();
+                    checkFileSize();
                     break;
 
-                    case "displayFromBD":
-                        break;
+                case "pdf":
+                    setPdfDrawable();
+                    checkFileSize();
+                    break;
+
+                case "displayFromBD":
+                    break;
             }
-            checkFileSize();
 
 
-        }
+    }
+
+
+    private void setPdfDrawable(){
+        imageFile.setImageResource(R.drawable.ic_pdf);
+    }
+
+    private void loadImage() {
+        System.out.println("File source -> "+fileSrc);
+        Glide
+                .with(getContext())
+                .load(fileSrc)
+                .apply(fitCenterTransform())
+                .into(imageFile);
     }
 
     private void checkFileSize(){
@@ -95,14 +171,6 @@ public class DetailsActivityFragment extends Fragment {
         }
     }
 
-    private void loadImage() {
-        System.out.println("File source -> "+fileSrc);
-        Glide
-                .with(getContext())
-                .load(fileSrc)
-                .apply(fitCenterTransform())
-                .into(imageFile);
-    }
 
     private void startDownloadImageParsingResult() {
 
@@ -159,4 +227,37 @@ public void onCompleted(Exception e, Response<JsonObject> response) {
             //FAIL!! Show TOAST!
         }
 }
+
+
+
+
+        //Intent-filter
+
+        Intent intentFilter = getActivity().getIntent();
+
+        if(intentFilter!=null) {
+            String action = intentFilter.getAction();
+            String type = intentFilter.getType();
+
+
+            if (Intent.ACTION_SEND.equals(action) && type != null) {
+                // Uri data = intentFilter.getData();
+                System.out.println("Tipo -> " + type +
+                        "\n");
+                String sharedText = intentFilter.getStringExtra(Intent.EXTRA_TEXT);
+
+                if (sharedText != null) {
+                    System.out.println("Text -> " + sharedText);
+                    // Update UI to reflect text being shared
+                }
+
+            } else if (Intent.ACTION_VIEW.equals(action) && type != null) {
+
+                Uri fileUri = intentFilter.getData();
+                if(fileUri != null){
+                    String filePath = intentFilter.getData().getPath();
+                }
+            }
+        }
+
  */
