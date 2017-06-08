@@ -60,6 +60,8 @@
 
     <!-- -->
     <string name ="file_too_big">Image file size limit reached (1MB free API)</string>
+    <string name ="invalid_url">Invalid URL! A valid URL must end with ".pdf" or ".jpeg" or
+        ".png" or ".jpg" or ".gif" or ".bmp")!</string>
     <string name ="unknow_fail">Something went wrong!</string>
 
 </resources>

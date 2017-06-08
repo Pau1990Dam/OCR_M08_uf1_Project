@@ -129,10 +129,11 @@ public class MainTab extends Fragment implements View.OnClickListener {
 
             case CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE:
                 if (resultCode == RESULT_OK) {
-
                     startOCRintent("capture");
                 }
+
                 break;
+
             case ACTIVITAT_SELECCIONAR_EXPLORADOR:
                 if (resultCode == RESULT_OK) {
 
@@ -144,6 +145,7 @@ public class MainTab extends Fragment implements View.OnClickListener {
                     else
                         startOCRintent("capture");
                 }
+
             default:
                 System.out.println("Default entry! ");
                 break;
@@ -200,9 +202,11 @@ public class MainTab extends Fragment implements View.OnClickListener {
      * @author paulburke
      */
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    public static String getPath(final Context context, final Uri uri) {
+    public String getPath(final Context context, final Uri uri) {
 
         final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+
+        mCurrentPhotoPath = uri.getPath();
 
         // DocumentProvider
         if (isKitKat && DocumentsContract.isDocumentUri(context, uri)) {
@@ -272,7 +276,7 @@ public class MainTab extends Fragment implements View.OnClickListener {
      * @param selectionArgs (Optional) Selection arguments used in the query.
      * @return The value of the _data column, which is typically a file path.
      */
-    public static String getDataColumn(Context context, Uri uri, String selection,
+    public String getDataColumn(Context context, Uri uri, String selection,
                                        String[] selectionArgs) {
 
         Cursor cursor = null;
@@ -300,7 +304,7 @@ public class MainTab extends Fragment implements View.OnClickListener {
      * @param uri The Uri to check.
      * @return Whether the Uri authority is ExternalStorageProvider.
      */
-    public static boolean isExternalStorageDocument(Uri uri) {
+    public boolean isExternalStorageDocument(Uri uri) {
         return "com.android.externalstorage.documents".equals(uri.getAuthority());
     }
 
@@ -308,7 +312,7 @@ public class MainTab extends Fragment implements View.OnClickListener {
      * @param uri The Uri to check.
      * @return Whether the Uri authority is DownloadsProvider.
      */
-    public static boolean isDownloadsDocument(Uri uri) {
+    public boolean isDownloadsDocument(Uri uri) {
         return "com.android.providers.downloads.documents".equals(uri.getAuthority());
     }
 
@@ -316,7 +320,7 @@ public class MainTab extends Fragment implements View.OnClickListener {
      * @param uri The Uri to check.
      * @return Whether the Uri authority is MediaProvider.
      */
-    public static boolean isMediaDocument(Uri uri) {
+    public boolean isMediaDocument(Uri uri) {
         return "com.android.providers.media.documents".equals(uri.getAuthority());
     }
 

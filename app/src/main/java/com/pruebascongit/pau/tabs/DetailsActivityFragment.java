@@ -1,5 +1,6 @@
 package com.pruebascongit.pau.tabs;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -7,8 +8,10 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -34,6 +37,7 @@ public class DetailsActivityFragment extends Fragment {
     private TextView fileSource;
     private EditText textResult;
     private ImageView imageFile;
+    int iCount;
     private File image;
 
     public DetailsActivityFragment() {
@@ -55,6 +59,31 @@ public class DetailsActivityFragment extends Fragment {
         imageFile = (ImageView) view.findViewById(R.id.imageFile);
         imageFile.setImageResource(R.drawable.ic_camera);
 
+        /*textResult.setOnTouchListener(new View.OnTouchListener() {
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        textResult.requestFocus();
+                        if(iCount == 1){
+                            textResult.postDelayed(new Runnable() {
+                                public void run() {
+                                    InputMethodManager manager = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                                    manager.showSoftInput(textResult, 0);
+                                    textResult.selectAll();
+                                }
+                            }, 200);
+                        }
+                        iCount++;
+                        break;
+
+                    default:
+                        break;
+                }
+                if(iCount >= 2) return false;
+                else return true;
+            }
+        });*/
+
         if(dataCaught!= null) {
 
             if (dataCaught.getAction() != null) {
@@ -63,7 +92,6 @@ public class DetailsActivityFragment extends Fragment {
                 explicitIntent(dataCaught);
             }
         }
-
 
 
         return view;
@@ -95,9 +123,10 @@ public class DetailsActivityFragment extends Fragment {
                     case ".pdf":
                         fileSrc = sharedText;
                         serviceStarter("pdf");
-                        break;//jpeg bmp gif
+                        break;
+
                     default:
-                        System.out.println("Last index -> "+sharedText.lastIndexOf("."));
+                        textResult.setText(R.string.invalid_url);
                 }
 
             }

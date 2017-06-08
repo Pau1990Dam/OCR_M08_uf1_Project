@@ -28,7 +28,7 @@
             android:name=".DetailsActivity"
             android:label="@string/title_activity_details"
             android:theme="@style/AppTheme.NoActionBar">
-
+            <!-- android:windowSoftInputMode="stateHidden" -->
             <!-- Retrieve url that afterwards will be filter to know if match with jpg, png, pdf ... -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />

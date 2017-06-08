@@ -24,7 +24,13 @@ public class OCRapi {
     public static void Call(Context context, String img_url, String language,
                             final call callback){
 
-        String knowIfisUrlorNot = img_url.substring(0,img_url.indexOf(":"));
+        String knowIfisUrlorNot;
+
+        if(!img_url.contains(":")){
+            knowIfisUrlorNot = "";
+        }else
+            knowIfisUrlorNot = img_url.substring(0,img_url.indexOf(":"));
+
 
         if(knowIfisUrlorNot.equals("http") || knowIfisUrlorNot.equals("https") ){
             Ion.with(context)
