@@ -17,10 +17,22 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.pruebascongit.pau.tabs.Api.OCRapi;
+import com.pruebascongit.pau.tabs.GsonUtils.JsonResponseToSummaryPojo;
+import com.pruebascongit.pau.tabs.Pojos.Summary;
+
+import org.json.JSONObject;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 import static com.bumptech.glide.request.RequestOptions.fitCenterTransform;
 
@@ -203,7 +215,7 @@ public class DetailsActivityFragment extends Fragment {
 
     private void startDownloadImageParsingResult() {
 
-        String language;
+        final String language;
         SharedPreferences preferencias = PreferenceManager.getDefaultSharedPreferences(getContext());
 
         language = preferencias.getString("lang", "esp");
@@ -216,13 +228,13 @@ public class DetailsActivityFragment extends Fragment {
             public void onCompleted(Exception e, JsonObject response) {
 
                 if (response != null) {
+                    Summary summary = JsonResponseToSummaryPojo.parseJson(response,fileSrc,language);
                     if (e != null) {
-                        textResult.setText(e.toString()+"\n"+response.toString());
-
-                        //SUCCESS !! Open new intent!
-                    } else {
-                        textResult.setText(response.toString());
+                        textResult.setText(e.toString()+"\n"+summary.getError());
                         //FAIL!! Show TOAST!
+                    } else {
+
+                        textResult.setText(summary.getContent());
                     }
                 }else
                     textResult.setText(R.string.unknow_fail);
@@ -230,6 +242,7 @@ public class DetailsActivityFragment extends Fragment {
             }
         });
     }
+
 }
 /*
  SharedPreferences preferencias= PreferenceManager.getDefaultSharedPreferences(getContext());

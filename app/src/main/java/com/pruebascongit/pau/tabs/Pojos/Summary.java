@@ -6,7 +6,7 @@ package com.pruebascongit.pau.tabs.Pojos;
 
 public class Summary {
 
-    private String fileSource;
+    private String fileName;
     private String error;
     private String lang;
     private String date;
@@ -15,20 +15,20 @@ public class Summary {
     public Summary() {
     }
 
-    public Summary(String fileSource, String error, String lang, String date, String content) {
-        this.fileSource = fileSource;
+    public Summary(String fileName, String error, String lang, String date, String content) {
+        this.fileName = fileName;
         this.error = error;
         this.lang = lang;
         this.date = date;
         this.content = content;
     }
 
-    public String getFileSource() {
-        return fileSource;
+    public String getfileName() {
+        return fileName;
     }
 
-    public void setFileSource(String fileSource) {
-        this.fileSource = fileSource;
+    public void setfileName(String fileName) {
+        this.fileName= fileName;
     }
 
     public String getError() {
@@ -66,7 +66,7 @@ public class Summary {
     @Override
     public String toString() {
         return "Summary{" +
-                "fileSource='" + fileSource + '\'' +
+                "fileName='" + fileName + '\'' +
                 ", error='" + error + '\'' +
                 ", lang='" + lang + '\'' +
                 ", date='" + date + '\'' +
