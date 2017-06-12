@@ -1,6 +1,5 @@
 package com.pruebascongit.pau.tabs;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -8,32 +7,22 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.pruebascongit.pau.tabs.Api.OCRapi;
 import com.pruebascongit.pau.tabs.GsonUtils.JsonResponseToSummaryPojo;
 import com.pruebascongit.pau.tabs.Pojos.Summary;
 
-import org.json.JSONObject;
-
 import java.io.File;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-
 import static com.bumptech.glide.request.RequestOptions.fitCenterTransform;
 
 
@@ -44,15 +33,20 @@ public class DetailsActivityFragment extends Fragment {
 
 
     private String fileSrc;
-
     private View view;
     private TextView fileSource;
     private EditText textResult;
     private ImageView imageFile;
-    int iCount;
-    private File image;
+    private Summary summaryFromListView;
 
     public DetailsActivityFragment() {
+    }
+
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        summaryFromListView = null;
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -70,31 +64,6 @@ public class DetailsActivityFragment extends Fragment {
         textResult.setEnabled(false);
         imageFile = (ImageView) view.findViewById(R.id.imageFile);
         imageFile.setImageResource(R.drawable.ic_camera);
-
-        /*textResult.setOnTouchListener(new View.OnTouchListener() {
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        textResult.requestFocus();
-                        if(iCount == 1){
-                            textResult.postDelayed(new Runnable() {
-                                public void run() {
-                                    InputMethodManager manager = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                                    manager.showSoftInput(textResult, 0);
-                                    textResult.selectAll();
-                                }
-                            }, 200);
-                        }
-                        iCount++;
-                        break;
-
-                    default:
-                        break;
-                }
-                if(iCount >= 2) return false;
-                else return true;
-            }
-        });*/
 
         if(dataCaught!= null) {
 
@@ -158,9 +127,13 @@ public class DetailsActivityFragment extends Fragment {
 
     private void  explicitIntent (Intent dataCaught){
 
-        fileSrc = dataCaught.getStringExtra("preview");
+
         String mode = dataCaught.getStringExtra("callFor");
 
+        if(!mode.equals("displayFromDB"))
+            fileSrc = dataCaught.getStringExtra("preview");
+        else
+            summaryFromListView = (Summary) dataCaught.getSerializableExtra("preview");
         serviceStarter(mode);
 
     }
@@ -179,7 +152,9 @@ public class DetailsActivityFragment extends Fragment {
                     checkFileSize();
                     break;
 
-                case "displayFromBD":
+                case "displayFromDB":
+                    setPdfDrawable();
+                    fillLayoutViews();
                     break;
             }
 
@@ -233,7 +208,7 @@ public class DetailsActivityFragment extends Fragment {
                         textResult.setText(e.toString()+"\n"+summary.getError());
                         //FAIL!! Show TOAST!
                     } else {
-
+                        summaryFromListView = summary;
                         textResult.setText(summary.getContent());
                     }
                 }else
@@ -241,6 +216,38 @@ public class DetailsActivityFragment extends Fragment {
 
             }
         });
+    }
+
+    private void fillLayoutViews(){
+        textResult.setText(summaryFromListView.getContent());
+        fileSource.setText(summaryFromListView.getFileName());
+    }
+
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        if(isAdded())
+            inflater.inflate(R.menu.menu_details, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+
+        //Si ve  de la bd no es pot editar, si no ve de la bd, es pot editar
+        if(summaryFromListView != null) {
+            int id = item.getItemId();
+
+            //noinspection SimplifiableIfStatement
+            if (id == R.id.save) {
+
+                return true;
+            }
+        }
+        return super.onOptionsItemSelected(item);
     }
 
 }

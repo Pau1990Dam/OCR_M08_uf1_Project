@@ -3,6 +3,7 @@ package com.pruebascongit.pau.tabs.GsonUtils;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.pruebascongit.pau.tabs.Pojos.Summary;
@@ -21,7 +22,7 @@ public class JsonResponseToSummaryPojo {
 
          Gson gson = new Gson();
          JsonObject root = gson.fromJson( json, JsonObject.class);
-         String jsonString = json.toString();
+         String jsonString = root.toString();
 
          Summary summary = new Summary();
          summary.setContent(content(jsonString));
@@ -56,6 +57,12 @@ public class JsonResponseToSummaryPojo {
 
         JsonElement jelement = new JsonParser().parse(json);
         JsonObject  jobjRoot = jelement.getAsJsonObject();
+
+        JsonElement element = jobjRoot.get("ParsedResults");
+        if ((element instanceof JsonNull)) {
+            return "";
+        }
+
         JsonArray parsedResults = jobjRoot.getAsJsonArray("ParsedResults");
         JsonObject textOverlay = parsedResults.get(0).getAsJsonObject();
 
