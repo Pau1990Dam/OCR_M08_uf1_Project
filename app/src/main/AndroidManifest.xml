@@ -27,7 +27,8 @@
         <activity
             android:name=".DetailsActivity"
             android:label="@string/title_activity_details"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:launchMode="singleTask">
             <!-- android:windowSoftInputMode="stateHidden" -->
             <!-- Retrieve url that afterwards will be filter to know if match with jpg, png, pdf ... -->
             <intent-filter>
@@ -52,13 +53,9 @@
 
         <activity
             android:name=".SettingsActivity"
-            android:label="@string/title_activity_settings"></activity>
+            android:label="@string/title_activity_settings">
+        </activity>
 
-
-        <provider
-            android:name=".ContentProvider.OcrContentProvider"
-            android:authorities="com.pruebascongit.pau.tabs.provider"
-            android:exported="false" />
 
     </application>
 

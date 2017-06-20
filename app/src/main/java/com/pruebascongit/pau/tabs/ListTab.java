@@ -8,10 +8,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
+
 
 public class ListTab extends Fragment {
 
     private View view;
+    private Realm realm;
 
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container,
@@ -34,6 +38,23 @@ public class ListTab extends Fragment {
         });
 */
         return view;
+    }
+
+    private void initRealm() {
+        // Initialize Realm
+        Realm.init(getContext());
+
+        // Configure Realm
+        RealmConfiguration realmConfiguration = new RealmConfiguration
+                .Builder()
+                .name("OCRs.realm")
+                .build();
+
+        // Clear the realm from last time
+        //Realm.deleteRealm(realmConfiguration);
+
+        // Create a new empty instance of Realm
+        realm = Realm.getInstance(realmConfiguration);
     }
 
 
